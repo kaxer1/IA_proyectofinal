@@ -1,0 +1,18 @@
+<h1 mat-dialog-title>Resultado de género y edad</h1>
+<div mat-dialog-content>
+    <mat-list role="list" *ngFor="let l of data">
+        <mat-list-item role="listitem">
+            Edad: {{l.age | number: '1.0-0'}} años.
+        </mat-list-item>
+        <mat-list-item role="listitem">
+            Genero: {{l.gender.value |i18nSelect: generoMaping  }}
+        </mat-list-item>
+        <mat-list-item role="listitem">
+            Probabilidad {{l.gender.probability | percent}}
+        </mat-list-item>
+    </mat-list>
+    <pre>{{data | json}}</pre>
+</div>
+<div mat-dialog-actions>
+    <button mat-button (click)="onNoClick()">Cerrar</button>
+</div>

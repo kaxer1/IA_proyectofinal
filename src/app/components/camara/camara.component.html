@@ -4,28 +4,31 @@
         App Detección de género y edad
     </h1>
 
-    <div>
+    <div *ngIf="webcamImage == null">
         <webcam [height]="500" [width]="500" [trigger]="triggerObservable" (imageCapture)="handleImage($event)"
             *ngIf="showWebcam" [allowCameraSwitch]="allowCameraSwitch" [switchCamera]="nextWebcamObservable"
             [videoOptions]="videoOptions" [imageQuality]="1" (cameraSwitched)="cameraWasSwitched($event)"
             (initError)="handleInitError($event)"></webcam>
         <br />
         <button mat-raised-button color="primary" (click)="triggerSnapshot();">Tomar Foto</button>
-        <button mat-raised-button color="warn" (click)="toggleWebcam();">Abrir Webcam</button>
+        <button mat-raised-button color="warn" (click)="toggleWebcam();"> {{showWebcam ? 'Cerrar' : 'Abrir' }} Webcam</button>
         <br />
-        <button mat-raised-button (click)="showNextWebcam(true);" [disabled]="!multipleWebcamsAvailable">Siguiente camara</button>
+        <!-- <button mat-raised-button (click)="showNextWebcam(true);" [disabled]="!multipleWebcamsAvailable">Siguiente camara</button> -->
         <input id="cameraSwitchCheckbox" type="checkbox" [(ngModel)]="allowCameraSwitch"><label
-            for="cameraSwitchCheckbox">Allow Camera Switch</label>
+            for="cameraSwitchCheckbox">Permite cambio de camara</label>
         <br />
-        DeviceId: <input id="deviceId" type="text" [(ngModel)]="deviceId" style="width: 500px">
-        <button (click)="showNextWebcam(deviceId);">Activate</button>
+        <!-- DeviceId: <input id="deviceId" type="text" [(ngModel)]="deviceId" style="width: 500px">
+        <button (click)="showNextWebcam(deviceId);">Activate</button> -->
     </div>
     <button mat-raised-button (click)="enviarFoto();">ENVIAR FOTO</button>
 </div>
 
-<div style="text-align:center" *ngIf="webcamImage">
+<div style="text-align:center" *ngIf="webcamImage != null">
     <h2>Foto lista</h2>
-    <img [src]="webcamImage.imageAsDataUrl" />
+    <button mat-raised-button color="warn"  (click)="LimpiarFotos();">Tomar otra foto</button>
+    <div style="margin: 5px auto;">
+        <img [src]="webcamImage.imageAsDataUrl"/>
+    </div>
 
     <h4 *ngIf="errors.length > 0">Messages:</h4>
     <ul *ngFor="let error of errors">

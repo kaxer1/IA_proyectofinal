@@ -4,7 +4,8 @@ import { Luxand } from 'src/app/interface/luxand';
 import { LuxandService } from '../../services/luxand.service';
 import { Observable, Subject } from 'rxjs';
 import { WebcamImage, WebcamInitError, WebcamUtil } from 'ngx-webcam';
-
+import {MatDialog} from '@angular/material/dialog';
+import { DialogresultadoComponent } from '../dialogresultado/dialogresultado.component';
 
 @Component({
   selector: 'app-camara',
@@ -14,28 +15,26 @@ import { WebcamImage, WebcamInitError, WebcamUtil } from 'ngx-webcam';
 export class CamaraComponent implements OnInit {
 
 
-  // toggle webcam on/off
+  // varibales para activar/desactivar la cámara web
   public showWebcam = true;
   public allowCameraSwitch = true;
   public multipleWebcamsAvailable = false;
   public deviceId: string;
-  public videoOptions: MediaTrackConstraints = {
-    // width: {ideal: 1024},
-    // height: {ideal: 576}
-  };
+  public videoOptions: MediaTrackConstraints = {};
   public errors: WebcamInitError[] = [];
 
-  // latest snapshot
+  // última instantánea
   public webcamImage: WebcamImage = null;
 
-  // webcam snapshot trigger
+  // disparador de instantáneas de la cámara web
   private trigger: Subject<void> = new Subject<void>();
-  // switch to next / previous / specific webcam; true/false: forward/backwards, string: deviceId
+  // cambia a la camara
   private nextWebcam: Subject<boolean|string> = new Subject<boolean|string>();
 
+  // datos resultantes del envio de la imagen
   public dataLuxand: Luxand[] = [];
 
-  constructor(private luxand: LuxandService, private toastr: ToastrService) { }
+  constructor(private luxand: LuxandService, private toastr: ToastrService, public dialog: MatDialog) { }
 
   ngOnInit(): void {
     WebcamUtil.getAvailableVideoInputs()
@@ -43,6 +42,17 @@ export class CamaraComponent implements OnInit {
         this.multipleWebcamsAvailable = mediaDevices && mediaDevices.length > 1;
       });
 
+  }
+
+  openDialog(data: any) {
+    this.dialog.open(DialogresultadoComponent, {data, width: '500px'}).afterClosed().subscribe(result => {
+      console.log(`Dialog result: ${result}`);
+    });
+  }
+
+  LimpiarFotos() {
+    this.webcamImage = null;
+    this.dataLuxand = [];
   }
 
   enviarFoto() {
@@ -59,6 +69,7 @@ export class CamaraComponent implements OnInit {
     
     this.luxand.postReconocimientoEdadGenero(photo).subscribe((resp: Luxand) => {
       this.dataLuxand.push(resp);
+      this.openDialog(this.dataLuxand);
       this.toastr.success('Transaccion exitosa')
     }, err => {
       this.toastr.error('Error en la transaccion.')
@@ -110,7 +121,6 @@ export class CamaraComponent implements OnInit {
   }
 
   public cameraWasSwitched(deviceId: string): void {
-    console.log('active device: ' + deviceId);
     this.deviceId = deviceId;
   }
 
